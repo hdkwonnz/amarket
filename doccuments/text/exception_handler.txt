@@ -1,0 +1,7 @@
+﻿exception handler 만들기(try ----> catch)    08/04/2019
+  원하는 곳에 try catch 삽입
+  php artisan make:exception XxxxYyyyException
+  app\exceptions\XxxxYyyyException.php 코드 수정
+
+현재는 try catch 를 사용한 예제는 HomeController 에 있다. catch 에서 throw new HomeSearch 로 보낸다.
+이때 error message를 함께 보내는 방법을 아직 못 찾았음.13/04/2019

@@ -1,0 +1,469 @@
+﻿middleware 만들기(for example...AjaxRequestOnly.php라는 middleware를 만들어 보았다.26/05/2019)
+  -https://therichpost.com/create-ajax-middleware-laravel-php-artisan-command
+  -1. First you need to write and run below command into your terminal:
+       php artisan make:middleware AjaxRequestOnly
+       After run above command, you will find AjaxRequestOnly.php file into your 
+       app/Http/Middleware/AjaxRequestOnly.php and you will see below code into this file: 
+       I have added ajax code into below file for ajax requests
+       public function handle($request, Closure $next)
+       {
+           if($request->ajax()) {
+            return $next($request);
+           }
+          abort(403, 'Unauthorized Access!');
+      }
+    -2. After this add below code into your app/Http/Kernel.php file:
+         protected $routeMiddleware = [
+         ....
+        'ajax'=>\App\Http\Middleware\AjaxRequestOnly::class
+         ];
+      -3. For check ajax call or support you can assign ajax middleware to 
+           particular Route and Controller and below is the example code and you 
+           can this code into your routes/web.php file:
+           Route::post('/addtocartlocation', 'CartController@addToCartLocation')->middleware('ajax');
+
+debugbar install 하기
+  - [ https://github.com/barryvdh/laravel-debugbar ]
+  - [ composer require barryvdh/laravel-debugbar --dev ]  (vagrant ssh=> cd Code/amarket/amarket 한후)
+  - debugbar를 중지 하고 싶으면
+       [ https://stackoverflow.com/questions/48220709/how-to-safely-remove-laravel-debugbar/52528002 ]
+       Best option: 
+                           Add DEBUGBAR_ENABLED = FALSE to your .env
+                           Debugbar is totally disabled
+                           You can keep APP_DEBUG = true
+                           It is not tracked by GIT
+  - If you want to totally remove the package, then do these steps:
+      $ composer remove vendor/barryvdh/laravel-debugbar
+      $ composer update
+
+laravel5.8 에서 migration 하기 전에 app\Providers/AppServiceProvider.php의 function boot()에 
+   schema::defaultStringLength(191)을 추가하자. use Illuminate\Support\facades\schema 추가.(현재상태)
+  혹은 config/database.php 에서 'mysql' => 'charset' = 'utf8', 'collation'=>utf8_unicode_ci 로 바꿀 것. 
+  특히 만약 서버의 database(mysql, mariadb)가 old version 이라면...12/04/2019
+  위에 두 방법중 아무것도 하지 않으면 varchar length는 default 값 255로 잡힌다.
+
+아래는 삭제:틀린 정보=====>13/04/2019
+//laravel5.8 phpMyAdmin으로 해당 database 확인 할 것. 12/04/2019
+  특히 users table에서 email column이 191 byte, unique로 않되어 있으면 register 후에 verification이 불가.
+  특히 5.8에서는 database 만든후 utf-8, column 길이 등을 꼭 확인 할 것...//
+
+laravel5.8에서 register 후에 email verification 만들기(기본적으로 built in 되어 있는 기능)
+ 새로 다운 받은 상태라면 php artisan make:auth  와 php artisan migrate, .env setting(data base, mail..etc)
+  view folder   ->  verify.blade.php 가 새로이 생긴다.
+  users table ->  email_verified_at  column 이 생긴다.
+  wep.php  ->  Auth::routes(['verify' => true]);  ->  ()안에 "(['verify' => true]"을 추가
+                   ->  Route::get('profile', function () {   
+                                 return "This is profile";
+                        })->middleware('verified');   추가(시험용:verify가 않된 상태에서 profile로 가면 "This is profile"; 가
+                        않나오고 verify.blade.php page로 돌아 간다.
+  User.php(model)  ->  class User extends Authenticatable  "implements MustVerifyEmail"를 추가
+		  email 시에 queue 사용을 위하여  public function sendEmailVerificationNotification() 추가
+  .env에서 setting 한대로 email 잘 토착했는지 체크후에 링크를 클릭해서 verificarion 한다.
+  wep.php에  새로 추가한 route profile을 브라우저 상에서 실행하면 verify  하라는 페이지가 뜨면 성공.
+  **현재는 register 후에 wep.php에서 정의 한 'profile' url로 가게끔 코딩 되었다. 아직 verify가 않된 상태니 verify.blade.php page에서
+  **보여주는 내용이나온다.그러나 이미 login은 된 상태로 laravel에서 코딩하였다.  만약 logout 된 상태에서 이메일로 받은
+  **링크를 클릭하면 verify가 않되고 login page 로 돌아간다.(이것 깨닫는데 24시간 걸렸음. 13/04/2019)
+
+project를 real server에 올린후 phpMyadmin은 real server의 public folder에 위치 시키면 된다.
+
+forgot password work flow(for general admin,editor,seller...)
+  login page -> forgot your password? click -> admin.password.request(name):admin-password/reset(uri):
+  ForgotPasswordController@showLinkRequestForm->view('admin.passwords.email')-> email input -> 
+  Send Password Reset Link click -> 
+  admin.password.email(name):admin-password/email(uri):ForgotPasswordController@sendResetLinkEmail ->
+  display "We have e-mailed your password reset link!" on view('admin.passwords.email')
+  email sending -> check email -> click link -> 
+  admin-password/reset/token(uri):ResetPasswordController@showResetForm -> view('admin.passwords.reset') ->
+  email,password,conform password input -> click Reset Password->
+  admin.password.request(name=>psot): admin-password/reset(uri):ResetPasswordController@reset
+
+forgot password work flow(for general customer)
+   login page->forgot your password? click->password/reset(uri):ForgotPasswordController@showLinkRequestForm->
+   email input->Send Password Reset Link click->password/email(uri):ForgotPasswordController@sendResetLinkEmail->
+   email sending->check email->click link->password/reset/token(uri):ResetPasswordController@showResetForm->
+   email,password,conform password input->click Reset Password->password/reset(uri):ResetPasswordController@reset
+
+browser(window) close 해도 login 상태가 살아 있는 문제 해결법 01/04/2019==>아직해결않됨...28/04/2019
+  laravel5.8 (App\config\session.php)==>'expire_on_close' => true로 바꾸면 해결.
+
+login => logout 후에 다시 back하면 전 page가 그대로 나타나는 문제 해결 방법. 26/03/2019
+  [https://www.youtube.com/watch?v=wLkA1g2s65U]
+    php artisan make:middleware RevalidateBackHistory
+    open App\Http\Middleware/RevalidateBackHistory.php
+      handle function에 다음을 추가.
+       $response = $next($request);
+       return $response->header('Cache-Control', 'nocache, no-store, max-age=0, must-revalidate')
+          ->header('Pragma', 'no-cache')
+          ->header('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');
+    open App\Http\Kernel.php
+        $routeMiddleware=[    ]에 추가.
+     go to web.php
+       Route::group(['middleware' => 'revalidate'], function()
+       {
+              원하는 route 추가...
+       });
+
+admin,editor,seller로 등록시 반드시 role_admins table에 등록 되었나 확인 하고 다음 test를 할 것.
+
+***********함부로 composer 사용하여 package reset 하지 말 것*************************
+***********꼭 해야 할 시는 source를 back-up할 것. 그래도 문제는 생김*********************
+***********가장 좋은 방법은 원본 source를 수정하지 말고 copy 하여 overriding 할 것.24/03/2019************
+
+sublime text
+  package control short cut key ==>CTRL + SHIFT + P
+  program source 찾을때 ==> CTRL + p
+
+laravel5.4 에서 migration 하기 전에 app\Providers/AppServiceProvider.php의 function boot()에 
+  schema::defaultStringLength(191)을 추가하자. use Illuminate\Support\facades\schema 추가.
+ 혹은 config/database.php 에서 'mysql' => 'charset' = 'utf8', 'collation'=>utf8_unicode_ci 로 바꿀 것. 12/04/2019
+
+Reset Password 실행시에 이메일에 보내는 문장이 있는 위치(현재는 이 문장을 무시하고 임의대로 수정하여 쓴다==>아래 template 수정 방법 참조)
+  vendor/laravel/framework/src/illuminate/Auth/Notifications/ResetPassword.php
+
+로그인 화면에서 Forgot Your Password를 클릭 후 Reset Password를 위한  이멜이 오는데 원래 랄라벨에서 보내주는 email template 수정 방법
+  현재 amaket에서는 이미 처리 완료 하였으나 참고로 하기위해 기록으로 남긴다.
+  ubuntu 에서 소스가 있는 folder로 이동 후 
+    php artisan vendor:publish --tag=laravel-notifications 실행하면
+       resources/views/vendor/notifications folder에 두개의 파일이 생긴다.
+       그중  email.blade.php를 수정 하면 된다. 08/03/2019
+
+email 보내기
+  .env file에서 해당 부분 수정(현재는 mailtrp.io==>가상서버, gmail.com 두가지로 세팅 준비 완료)
+  실 서버로 올릴 경우 호스팅회사와 상의 요망
+  config/mail.php 도 필요한 경우 수정 할 것(현재는 "from" 에서 "name"을 "Leo Kwon"으로 수정 했음.)
+
+login, logout 등 authenctication에 관한 코드는 
+  "\vendor\laravel\framework\src\Illuminate\Foundation\Auth\AuthenticatesUsers.php"에 존재 한다.
+  특히 내가 만든 shoppinMall의 cartMigrate()[==>Shoppingcart controller 에 있던]도 위의 path에 있음
+  현재는 LoginControlle.php에 overriding 했음.
+
+코드 중 한글로 작성 된 부분이 서버, 브라우져, 에디터 등에서 깨어져 나올 때
+  control panel -> region  ->  administrative  ->  Change system locale로 가서
+  current system locale에서 English(United States) 선택 하고 Beta(Use Unicode UTF-8 for worldwide language support)에 tick
+
+laravel projects를 chrome등 브라우저 에서 run 하는 방법
+  1 방법 => git bash -> cd Homestead -> vagrant up ->  브라우저에서 homestead.test(laravelmall.test...) type
+  2 방법 => visual studio에서 실행
+  위 두 경우 모두 laravel projects 안에 .env 파일에서 db user name, password를 homestead, secret(위1번)혹은 root,khd560314(위2번)로 바꾸어 줄 것
+
+ErrorException:compact(): Undefined variable: operator in....
+  위와 같은 에러는 php7.3을 사용하고 laravel 5.4 이하 버젼을 사용 할 경우 발생
+  ubuntu로 들어가 해당 프로젝트 파일을 연 다음
+    cd vendor/laravel/framework
+    wget https://patch-diff.githubusercontent.com/raw/laravel/framework/pull/25193.diff
+    patch -p1<25193.diff 을 type  후 엔터를 type
+
+laravel 사용을 위한 visual studio setting 방법(new projects 생성시에 반드시 필요)
+  상단메뉴 project -> laravelMall(현재 프로젝트 이름)properties 클릭
+    왼쪽 상단의 Server 를 클릭
+     Apply setting to all users(store in project file) tick
+     Server 칸의 Built-in Web server 선택
+     Runtime 칸에서 php version 선택
+     Configuration file: C:\Program Files(x86)\IIS Express\PHP\v7.2\php.ini 확인
+     Host name 칸에 localhost 라고 type
+     Auto-assign port 칸 tick
+     Routing script 칸에 server.php 라고 type
+
+laravel install 후 새로 생기는 file 혹은 folder
+  c:\user\kwon 안에
+    .ssh, .vagrant, .vagrant.d, .VertualBox, Homestead, PhpCode(사용자가 만든 이름),
+    VirtualBox VMs, .bash_history, Vagrantfile
+
+laravel projects를 원하는 version(예: 5.4)으로 만들 때(ubuntu로 들어가)
+  "cd .." type하여 home으로 이동
+  "cd Code" type 하여 source가 있는 디렉토리로 이동
+  composer creat-project --prefer-dist laravel/laravel blog(<== 원하는 이름) "5.4.*"
+
+phpMyAdmin 설치하기[https://www.youtube.com/watch?v=x7pm2lQxAvY]
+  google에서 phpMyAdmin을 서치해서 home으로 이동 후 다운로드
+  다운 로드 file을 laravel source가 있는 folder(phpCode)로 이동 후 extracting
+  extracting 후 생긴 folder(phpMyAdmin-4.8.0-all-languages) name을 phpMyAdmin으로 change
+  Homestead.yaml file의 sites에 등록(eg: phpMyAdmin.test)
+  C:\Windows\System32\drivers\etc\hosts file에 등록(eg: phpMyAdmin.test)
+
+laravel homestead install 하기
+  virtualBox, vagrant, git을 설치
+  git(bash) 클릭하여 terminal open
+  "vagrant box add laravel/homestead" type
+  "git clone https://githup.com/laravel/homestead.git~/Homestead" type
+  "cd ~/Homestead" type
+  "bash init.sh" type ==> 이 과정에서 Homestead-7이 이미 존재 한다는 error가 나오면 Desk top 화면에서 Oracle VM Virtual Box
+   아이콘을 클릭 후 Homestead-7을 지운 후 다시 시도
+  c:\user\kwon\Homstead 안에 있는 Homestead.yaml file 응 오픈하여 수정(folders,sites...etc)
+  c:\Windows\System32\driver\etc 로 이동하여 hosts file을 수정(Homestead.yaml file에 있는 sites 추가)
+  git의 Homestead folder에서 "vagrant up" or "vagrant reload --provision" type
+  "vagrant ssh" type 하여 ubuntu 로 들어가 "cd Code" type 
+  "composer creat-project --perfer-dist laravel/laravel blog(<==원하는 이름)" type하여 new project 생성
+
+composer command not found error 발생시
+  git bash open 한다
+  "cd Homestead" type
+  "vagrant up" type   ->   "vagrant ssh" type 후 projects가 있는 directory로 이도하여 composer 실행
+
+vagrant up 실행시
+  check your Homestead.yaml file, the path to your private key does not exist error가 발생하면
+    you want to follow these steps from terminal
+    Generate a ssh key [ssh-keygen -t rsa -b 4096 -C "your_email@example.com"] type
+    Start ssh agent eval "$(ssh-agent -s)"
+    Add your SSH privat key to the "ssh-agent ssh-add -k ~/.ssh/id_rsa" type
+    then "vagrant up" type
+
+hosts file 수정시
+  "C:\Windows\System32\drivers\etc\hosts" type
+  바이러스백신 프로그램 정지
+  notpad(memo장)를 administrator로 열고 "모든파일"을 선택 후 수정
+
+git bash 상에서 vagrant 명령어 실행시 powershell PATH error가 발생하면
+  control panel  ->  system  ->  Advanced system setting  ->  상단의 Advanced 클릭 후 하단의 Environment Variabls 클릭  ->
+  system variable box에서 Path 라인을 더블 클릭  ->  우측 상단의 New 클릭하면 box 맨 하단에 빈칸이 생긴다. 여기에 
+  "%SYSTEMROOT%\System32\WindowsPowerShell\v1.0\" type 후 OK 클릭
+
+debugbar(별도로 인스톨 해야함) 사용 전 후에 console.log(php 명령어)가 실행이 않되면
+  "php artisan config:clear" 실행
+
+yarn install 시에
+  "An unexpected error occurred: "EPROTO: protocol error, symlink" 가 발생하면
+    "yarn install --no-bin-links"  type
+
+npm install 시에
+  "npm EPROTO:  protocol error, symlink" 가 발생하면
+  "sudo npm install --no-bin-links" type  엔터  "sudo npm install --no-bin-links" type  엔터   ==> 두번 type 한다.
+  두번 타입해서 캍은 에러가 나오면 않나올 때 까지 계속 type 한다.
+
+npm run watch, npm run dev 시에 error가 발생하면
+  "npm install cross-env-g" type
+
+npm run watch 를 실행후 작동이 않될 때는
+  package.json을 오픈 후 watch 칸에 "--watch-poll" 을 추가한다(아래 참조)
+  "watch": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --watch-poll --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js", 
+
+Vagrant Command Stopped Working: Command not Found in Windows
+   bash: vagrant: command not found---error message 나타나면
+     Go to: control panel ->  system click -> Advanced system setting(화면 상단 좌측) click  ->  Advanced(화면 상단 메뉴라인) click  ->  Environment Variables click
+    Then Double Click 'Path' on the System variables section -> 우측 상단의 'New' 클릭  ->
+    하단의 빈칸에 "C:\HashiCorp\Vagrant\bin"  Ok 클릭
+
+windows를 ubuntu  상태로 변환할 때,
+  git bash 프로그램 실행(taskbar에서 클릭)  ->  " cd Homestead" type 하여   Homestead로 이동  ->  "vagrant up" type하여 virtual machine 실행  ->
+  "vagrant ssh" type하여 ubuntu 로 이동
+
+처음 프로젝트 만들때(ubuntu로 변환 후)
+  "cd .." type하여 home으로 이동
+  "cd Code" type하여 source가 있는 directory로 이동
+  composer create-project --prefer-dist laravel/laravel blog(<==원하는 이름)
+
+Homestead.yaml 수정후
+  "vagrant reload --provision" type
+
+site에 추가후 windows에서 수정
+  C:\Windows\System32\drivers\etc\hosts 가서
+  192.168.10.10  homestead.test(<==수정된 사이트 이름)추가(안티바이러스 프로그램 중단해야 한다)
+
+visual studio에서 debugging 할 경우
+  .env 파일의 DB USER NAME 과 DB PASSWORD를 mysql work bench에서 사용하는 것으로 바꿀 것
+  예: user name  ->  root, password  -> khd560314
+
+virtual machine(http://laravelmall.test, http://homestead.test  etc)에서 debugging 할 경우
+  .env 파일의 DB USER NAME 과 DB PASSWORD를 default로 준 값으로 바꿀 것
+   예: user name  ->  homestead,  password  -> secret
+
+데이터베이스 설정
+  config/database.php
+  .env
+  
+Authentication 자동으로 만들기
+  php artisan make:auth
+
+첫번째 migration ==> laravel install 후 아무런 db table 생성 없이 migration 수행(homestead DB...?)
+ php artisan migrate
+ laravel이 기본으로 제공하는 회원인증과 관련된 테이블이 생성 됨
+
+DB table 만들기(처음 부터 모델로 만들면 좋다)
+  사용할 DB는 mysql workbench(visual studio 사용을 위해)나 phpMyAdmin.test(Youtube 참조하여 설치한==>ubuntu사용을 위해)에서 등록하고
+  .env file도 DB이름을 등록 해야 한다. ubuntu 에서 program source가 있는 folder로 이동 한다.
+  (php artisan make:model Todo --migration<==모델이름 : 이렇게 하는 것이 좋다) -->1방법
+  php artisan make:migration create_todos_table -->2방법
+  php artisan make:migration create_todos_table --create=todos  -->3방법 
+  "todos"은 알아보기 쉬운 table 이름을 준다.
+  테이블이름(예: todos)은 첫글자는 반드시 소문자로 하고 복수형(끝에 s 자 붙이기)을 사용 할것.
+  database/migration 폴더에 creat_todos_table.php 파일이 생성 됨
+  php artisan migrate ==> database/migrations/creat_todos_table.php 에서 필요한 필드를 추가한 후
+  php artisan migrate 실행시에(users table)  password_resets이 이미 존재 한다는 에러가 나오면 phpMyAdmin.test로 가서  password_resets 테이블을 지운다.
+  Chrome 에서 phpMyAdmin.test 으로 들어 가 후 해당 DB 와 table을 check
+ 
+이미 만들어진 Table(yyys)에  column(xxxx)을 추가 할때 migration(ubuntu -> source file folder로 들어 간 후)
+  php artisan make:migration add_xxxx_column_yyys_table --table=yyys
+  database/migrations 의 add_xxxx_coulumn_yyys_table.php를 오픈
+     public function up()
+    {
+        Schema::table('yyys', function (Blueprint $table) {
+            
+            $table->string('xxxx')->nullable();  ==>원하는 column name, attribute를 추가-------------------------------------------->이렇게 하든지 혹은
+            $table->string('xxxx')->nullable()->after('aaaa');  ==>aaaa 컬럼 뒤에 원하는 column name, attribute를 추가---->이렇게 하든지
+            $table->boolean('status')->default(false)->after('verifyToken');--------------------------------------------------------------->이렇게 한다.**boolean defalt(false)**
+            
+        });
+    }
+     public function down()
+      {
+           Schema::table('yyys', function (Blueprint $table) {
+            
+            $table->dropColumn('xxxx');  ==>나중에 rollback을 위하여 추가
+            
+        });
+      }
+    위 두개의 function을 고친 후에 php artisan migrate 하면 migration이 수행된다.   
+    php artisan migrate:rollback 하면 table이 rollback 된다.==> 가장 최근에 수행한 migration만 rollback 한다.
+
+이미 만들어진 table column에 attribute(type) 추가 하기(users table의 name이라는 column에 unique 추가)
+  php artisan make:migration add_unique_name_users_table --table=users 한 후
+    database/migrations folder에 해당 migration file을 수정
+       public function up()
+      {
+          Schema:table('users', function (Blueprint $table) {
+             
+              $table->unique('name'); 
+              
+          });
+      }
+     public function down()
+      {
+           Schema::table('users', function (Blueprint $table) {
+            
+           $table->dropUnique('users_name_unique');
+            
+        });
+      }
+      위 두 function을 수정 후 php artisan migrate를 type 하면 migration이 수행 된다.
+      php artisan migrate:rollback --step=2 하면 table이 rollback 된다.(--step=2 는 전전 단계로 돌아 간다는 의미)
+      php artisan migrate:refresh 하면 모는 것을 rollback 했다가 다시 migration 한다.
+
+이미 만들어진 table column의 attribute(type) 변경 하기(customers table의 mobile_number 라는 columnd의 type 변경:string->integer)
+  php artisan make:migration change_mobile_number_type_custombers_table 한 후
+    database/migrations folder에 해당 migration file을 수정
+       public function up()
+      {
+          Schema:table('customers', function (Blueprint $table) {
+             
+              $table->integer('mobile_number')->change();
+              
+          });
+      }
+     public function down()
+      {
+           Schema::table('customers', function (Blueprint $table) {
+            
+          $table->string('mobile_number')->change();
+            
+        });
+      }
+      위 두 function을 수정 후 php artisan migrate를 type 하면 migration이 수행 된다.
+      php artisan migrate:rollback --step=2 하면 table이 rollback 된다.(--step=2 는 전전 단계로 돌아 간다는 의미)
+      php artisan migrate:refresh 하면 모는 것을 rollback 했다가 다시 migration 한다.
+
+이미 만들어진 table의 column 이름을 변경 하기(users table의 name이라는 column을 first_name으로 변경)
+  composer require doctrine/dbal 로 패키지 인스톨
+  php artisan make:migration rename_name_users_table --table=users 한 후
+    database/migrations folder에 해당 migration file을 수정
+       public function up()
+      {
+          Schema:table('users', function (Blueprint $table) {
+             
+              $table->renameColumn('name','first_name');
+              
+          });
+      }
+     public function down()
+      {
+           Schema::table('users', function (Blueprint $table) {
+            
+            $table->renameColumn('first_name','name');
+            
+        });
+      }
+      위 두 function을 수정 후 php artisan migrate를 type 하면 migration이 수행 된다.
+
+원하는 laravel 버젼을 create 한 후  php artisan migrate 하면(ubuntu -> surce folder(laravelmall, amaket etc...)
+  users table(phpMyAdmin.php으로 확인)이 생긴다.
+  database/migrations folder에
+    2014_10_12_create_users_table.php,  2014_10_12_create_password_reset_table.php이 생긴다.
+    file(2014_10_12_create_users_table.php)에 두개의 function이 존재
+    public function up()
+      {
+          Schema:table('users', function (Blueprint $table) {
+              $table->increments('id');
+              $table->string('name');
+              $table->string('email')->unique();
+              $table->string('password');
+              $table->rememberToken();
+              $table->timestamps();
+          });
+      }
+     public function down()
+      {
+           Schema::table('yyys', function (Blueprint $table) {
+            
+            Schema::drop('users');
+            
+        });
+      }
+  
+DB table 삭제
+  database/migrations 의 create_todos_table.php
+   public function down()
+      {
+          Schema::drop('users');
+      }
+   php artisan migrate:rollback 하면 table이 rollback 된다.
+
+컬럼 추가 migration
+  php artisan make:migration AddColumnsTodosTable 하면
+  database/migrations 의 AddColumnsTodosTable.php
+  public function up()
+     {
+         Schema::table('users', function (Blueprint $table) {        
+            $table->string('nickName');          
+         });
+     }
+  php artisan migrate 하면 table에 'nickName' 컬럼이 생긴다.
+
+DB table 수동으로 설계시에 아래 필드를 꼭 삽입시켜야 한다.
+  created_at(TIMESTAMP)---system에서 데이터를 삽입
+  updated_at(TIMESTAMP)---system에서 데이터를 삽입
+
+Route 수정
+
+콘트롤러 만들기
+  ubuntu 상태로 들어가 소스파일(cd Code -> laravelMall -> laravelMall)로 이동 후
+  php artisan make:controller TodoController --resource  ==> ToDo는 controller 이름
+  콘트롤러이름(예: Todo)은 첫글자는 반드시 대문자로 하고 복수형(끝에 s 자 붙이기)은 사용 하지 말것.
+  
+모델 만들기
+  php artisan make:model Todo(모델이름) --migration 
+  모델이름(예: Todo)은 첫글자만 반드시 대문자로 하고 복수형(끝에 s 자 붙이기)은 사용 하지 말것.
+  migration 파일도 함께 만들어 준다.
+
+route list 보기
+  php artisan route:list
+
+route 추가:RESTful 리소스 컨트롤러
+  Route::resource('todo', TodoController'); //Route의 get, post를 한꺼번에 지칭 한다.(06/03/2019)
+
+soft delet(지운 것 처럼 보인다)
+  php artisan make:migration xxxxxxxx로 migration file 만든 후
+  public function up()
+     {
+         Schema::table('users', function (Blueprint $table) {        
+            $table->softDeletes();          
+         });
+     }
+  php artisan migrate 하면 table에  deleted_at컬럼이 추가된다
+  다시 모델로 와서 수정 해야함(비디오 참고 #2)
+
+email class 만들기
+  php artisan make:mail 클라스 이름(예:MailSending)
+
+
+
+
+

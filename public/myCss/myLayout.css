@@ -1,0 +1,174 @@
+﻿a{
+    color: black;
+}
+
+.before_nav{
+    width:100%; height:60px;
+}
+.before_nav_box{
+    width:100%; height:75px;
+}
+.logo_box{
+    width:300px; height:74px;  position: relative; top: -10px; right: -15px; padding-top:5px;
+}
+.search_box{
+    width:400px; height:74px;  position: relative; top: -84px; right: -365px
+}
+.search_box_color input{
+    border-color: #0026ff;
+    /*box-shadow: 0 0 5px rgba(207, 220, 0, 0.4);*/
+}
+.search_box_color button{
+    border-color: #0026ff;
+    /*box-shadow: 0 0 5px rgba(207, 220, 0, 0.4);*/
+}
+.btn_search_position{
+    left:-44px;
+}
+.before_nav_box_add{
+    width:300px; height:74px;  position: relative; top: -158px; right: -850px;  padding-left:122px;
+}
+.navbar_position{
+    /*top:5px;*/ top: 20px;  /*margin-bottom: 0px;*/ /*margin-bottom: 38px;*/ margin-bottom: 20px;
+}
+
+.nav_logo_myShopping{
+    background: url('../../imageLogo/myShopping.JPG') no-repeat; /*background-image: url();*/
+    background-size: 30px 30px; height: 30px; margin-left:25px; margin-top:10px; margin-right:10px; margin-bottom:10px; width: 30px;
+}
+.nav_logo_myCart{
+    background: url('../../imageLogo/cart.JPG') no-repeat; /*background-image: url();*/
+    background-size: 30px 30px; height: 30px; margin: 10px; width: 30px;
+}
+.nav_logo_register{
+    background: url('../../imageLogo/register.JPG') no-repeat; /*background-image: url();*/
+    background-size: 30px 30px; height: 30px; margin: 10px; width: 30px;
+}
+.nav_logo_login{
+    background: url('../../imageLogo/login.JPG') no-repeat; /*background-image: url();*/
+    background-size: 30px 30px; height: 30px; margin: 10px; width: 30px;
+}
+
+.nav_arrow_up, .nav_cross {
+    font-size: 20px;
+}
+.nav_cross {
+    font-size: 20px;
+    margin-top: 3px;
+}
+.body_position{
+    padding-top: 30px;
+}
+.myfooter{
+    margin-bottom:0px;
+}
+.myfooter_twoNavs{
+    margin-bottom: 55px;
+}
+.color_blue{
+    background-color: #00ffff;
+}
+.color_white{
+    background-color: white;
+}
+.color_dark_blue{
+    background-color: rgba(0, 38, 255, 0.82);
+}
+.color_light_blue{
+    background-color: rgba(0, 38, 255, 0.64);
+}
+button .glyphicon-search
+{
+  /*padding: 10px 16px;*/
+  font-size: 20px;
+  line-height: 1.33;
+  border-radius: 6px;
+}
+.company_bottom_intro_box{
+    background-color:rgba(0, 0, 0, 0.07);
+    /*width: 33%; height: 40px;*/ /*width: 50%;*/
+    /*text-align: center;*/ vertical-align: middle;
+    line-height: 40px;       /* the same as your div height */
+}
+.company_bottom_intro_text{
+    /*margin:20px;*/ /*width: 15%;*/
+    margin-right: 15px;
+    margin-left: 11px;
+}
+.company_bottom_corp_margin{
+    margin-top:17px;
+}
+.company_bottom_boder{
+    border-right: 1px dotted gray;
+}
+.company_bottom_box{
+    width:100%; min-height:60px; margin-top: 5px;
+}
+.partners_logo_size{
+    /*width:50px; height:30px; margin-left:47px; margin-right: 47px;*/
+    /*height: 30px; width:50px;*/
+}
+
+a:hover, a:focus{
+    text-decoration: none;
+}
+.hoverBlue:hover {
+     background-color: #0026ff;  color: white;  
+}
+.hoverBlack:hover{
+    background-color: black; color: white;
+}
+.hoverLightBlue:hover{
+        
+        background-color: rgba(0, 38, 255, 0.58); color: white;
+}
+
+.top_search_nav{
+    background: white; height: 50px; top: 0px; padding-top: 1px;  
+}
+
+.blue_white {
+            background-color: blue;
+            color: white;
+}
+
+/*<!--회사 소개, 채용정보, 이용약관 등... -->*/
+.table3333 {
+    width: 100%;
+}
+
+.table3333 .tr {
+    border-top: 1px solid rgba(128, 128, 128, 0.50);
+    border-bottom: 1px solid rgba(128, 128, 128, 0.50);
+    background-color: rgba(128, 128, 128, 0.23);
+    line-height: 40px;
+}
+
+.table3333 .td1 {
+    width: 10%;
+    border-right: 1px solid rgba(128, 128, 128, 0.29);
+    text-align: center;
+}
+
+.table3333 .td3 {
+    width: 9%;
+    border-right: 1px solid rgba(128, 128, 128, 0.29);
+    text-align: center;
+}
+
+.table3333 .td4 {
+    width: 11%;
+    border-right: 1px solid rgba(128, 128, 128, 0.29);
+    text-align: center;
+}
+
+.table3333 .td5 {
+    width: 20%;
+    border-right: 1px solid rgba(128, 128, 128, 0.29);
+    text-align: center;
+}
+
+.table3333 td a div {
+    min-height: 40px;
+}
+             

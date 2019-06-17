@@ -1,0 +1,89 @@
+﻿mutli Auth 만들기. 15/03/2019 ===>sentinel package를 사용하면 아래와 같은 작업 없이 multi Auth를 구현 할 수 있다고 함(21/03/2019)
+
+[https://www.youtube.com/watch?v=uE2uS0ZmTPk&list=PLe30vg_FG4OTO7KbQ6TByyY99AiSw1MDS&index=6]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Http\Controller\Auth 안에 있는 source를 모두 copy 하여 새로운 folder(eg->Admin)를 만들어 저장
+Http\Controller\Admin folder 안에 있는 모든 source들의 namespace, use..등을 수정 한다.
+
+views/auth folder(views/auth/password) 안에는 모든 source copy 하여 새로운 folder(eg->admin)를 만들어 저장
+views/admin folder 안에 있는 모든 source들의 내용을 수정 한다.
+views folder 안에 home.blade.php를 copy 하여 views/admin folder 안에 home.blade.php를 만든다.(dash board)
+
+routes/wep.php를 수정 추가 한다.(php artisan route:list를 참조)
+Http\Controller 안에 AdminController를 만들고 내용을 수정 추가한다.
+
+config\auth.php에서 guards,  providers, passwords에 admin 을 추가한다. 
+***참고*** guards==>admin, providers,broker==>admins ******************
+
+migration file만들기(php artisan make:migration create_admins_table --create=admins
+admin model을 만든다.(Admin.php)=>내용은 User.php에서 copy한다.
+migration file 수정후 php artisan migrate 수행
+phpMyAdmin 으로 table이 추가 되었나 확인.
+
+Admin/LoginController.php 에서 $protectedTo,  __construct()를 수정한다.
+Admin/ForgotPasswordController 에서  __construct()를 수정한다.
+Admin/RegisterController 에서 $protectedTo,  __construct()를 수정한다.
+Admin/PasswordResetController에서 $protectedTo,  __construct()를 수정한다.
+
+web.php 에서 login을 admin 으로 수정.
+
+[https://www.youtube.com/watch?v=gpACQXVX2kA&index=7&list=PLe30vg_FG4OTO7KbQ6TByyY99AiSw1MDS]
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Admin/LoginController.php(새로만든 folder and source) 에서 AuthenticatesUsers.php에 있는 
+public function showLoginForm(), protected function guard()을 copy해서 Admin/LoginController.php에
+overwriting 하고 수정한다.
+AdminController의  public function __construct()를 수정한다
+
+==> 아래 부분은 비디오대로 수행시 wep.php의  ->middleware('auth'); 에서
+==> Header...csrfVerifyToken...error가 난다. 24/03/2019
+==>그래서 비디오와 상관 없이 내 임의로 수정. 원본 source 참조 할 것. 24/03/2019
+Http/Middleware/RedirectAuthenticated.php의 public function handle을 수정한다. 
+app\Exceptions/Handler.php의 protected function unauthenticated 를 수정.             
+
+[https://www.youtube.com/watch?v=T49ogngdhrw&list=PLe30vg_FG4OTO7KbQ6TByyY99AiSw1MDS&index=8]
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Admin/ForgotPasswordController에서 SendsPasswordResetEmails.php에 있는
+public function showLinkRequestForm()을 copy하여 Admin/ForgotPasswordController에 overwting하고 수정.
+
+Admin/ResetPasswordController에서 ResetsPasswords.php의 public function showResetForm을
+copy하여 Admin/ResetPasswordController에 overwriting 하고 수정.
+
+php artisan make:notification AdminResetPasswordNotification 하면 
+app/Notifications folder가 만들어 지고 그 안에 AdminResetPasswordNotification.php 가 만들어 지고
+그안에 있는 내용을 수정한다.
+app/Notifications folder/ AdminResetPasswordNotification.php ==> mail 발송시 현재는 queue를 사용 하도록
+세팅했음. 반드시 ubuntu -> source folder -> php artisan queue:work --tries=4 type 할것. 28/03/2019
+**********php artisan 명려어는 실 서버에서는 작동안됨*************
+
+vendor/laravel/framework/src/illuminate/Auth/Passwords/CanresetPassword.php에서 
+public function sendPasswordResetNotification($token)을 copy하여 Admin.php(model)에 
+overwriting한 후 수정한다. 이 코드에서 mail을 보내라는 명령을 내린다.(trigger로 보면 된다)
+
+Admin/ForgotPasswordController의 SendsPasswordResetEmails.php에서 public function broker()을 copy 하여
+Admin/ForgotPasswordController에 overwriting 한후 수정  한다.
+
+Admin/ResetPasswordController의 ResetPasswords.php에서  public function broker(),protected function guard()를
+copy하여 Admin/ResetPasswordController에 overwriting 후 수정 한다.
+
+Admin/ResetPasswordController의 ResetPasswords.php에서 protected function sendResetResponse($response)를
+copy하여 Admin/ResetPasswordController에 overwriting 후 수정 한다.(내가 추가한 코드:비디오에는 없다)
+
+*****************************************내가 추가한 코드*********************************************
+Admin/LoginController.php 의  AuthenticatesUsers.php에 있는 logout function을 copy 해서 
+Admin/LoginController.php 에 넣고 수정. 25/03/2019
+
+multi auth를 이용한 Admin/RegisterController 수정.26/03/2019
+  admin,editor,seller register를 위하여 코드를 추가 혹은 수정 하였음.=>현재는 seller만 완벽함.
+  public function showRegistrationFormForSeller() 추가
+  RegistersUsers.php에서 public function register(Request $request)을 copy 하여 Admin/RegisterController로 옴겨 수정.
+  RegistersUsers.php에서  protected function guard()을 copy하여 Admin/RegisterController로 옴겨 수정.
+  protected function create(array $data) 수정(Admin model로 변경, admins table에 role_code 추가, role_admins table 추가...)
+  email 보내는 function은 잠시 stop.
+
+ 
+
+
+
+

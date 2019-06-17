@@ -1,0 +1,89 @@
+﻿/*.main_carousel{
+    width: 100%; height: 200px;
+}*/
+.main_carousel_bottom{
+    margin-top:15px;
+}
+.carousel_margin_right{
+    margin-right: 0px; z-index:1;
+}
+/*아래 hr_thicker는 작동하지 않는 것 같다... 지켜 보는 중... 27/02/2019*/
+/*hr(선)을 굵게 하기 위해 "boder 3px solid black" 식으로 고쳐 사용 중임*/
+/*.hr_thicker{
+    height:2px;border:none;color:#333;background-color:#333;
+}*/
+.super_deal_logo_size{
+    width:40px; height:40px; margin-left:19px;
+}
+.color_red{
+    color:red;
+}
+.text_white{
+        color:white;
+    }
+.text_black{
+       color: black; 
+}
+.text_blue{
+        color:blue;
+}
+.text_red{
+    color: red;
+}
+/*Category Sub Menu Hanling......*/
+.categorySubBox{
+    z-index:2; display: none; background-color:rgba(255, 216, 0, 0.28); width: 100%; min-height: 410px; margin-left: 15px;
+}
+.category01SubArea, .category02SubArea, .category03SubArea {
+    /*margin: 30px;*/
+    
+}
+.category01SubCloseBox{
+    top: -360px; left : 310px; position: relative;
+}
+.category02SubCloseBox{
+    top: -320px; left : 220px; position: relative;
+}
+.category03SubCloseBox{
+    top: -320px; left : 220px; position: relative;
+}
+.line_height_10{
+    line-height: 10%;
+}
+.margin_top20{
+    margin-top: 20px;
+}
+.width100{
+    width: 100%;
+}
+.menu_map_box{
+    margin-left: -45px;
+}
+.menu_map_child1, .menu_map_child2, .menu_map_child3{
+    background-color: white; /*width: 100px;*/ width: auto; padding: 5px;
+    display: none; z-index: 5; position: absolute;
+}
+.directContactQuesSub {
+    background-color: white; width: 150px;
+    display: none; z-index: 5; position: absolute;
+}
+
+.top_upper {
+    /*margin: -13px;*/margin: 0px;
+}
+
+/*<!--메뉴에 마우스를 대면 색이 블루로 변하면서 언더라인이 생긴다.-->
+<!--text-decoration: none; 으로 바꿀때는 해당 div에서 class를 주고 jQuery로 콘트롤 할것.-->*/
+a span:hover{
+        text-decoration: underline;
+        color: blue;
+    }
+    .color_white{
+       background-color: white;
+}
+
+/*<!--bootstrap carousel 에서 background 색을 없앤다-->*/
+ .carousel-control.left, .carousel-control.right {
+       background-image:none !important;
+       filter:none !important;
+}

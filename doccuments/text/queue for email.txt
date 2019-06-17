@@ -1,0 +1,30 @@
+﻿queue for email  23/03/2019
+[https://www.youtube.com/watch?v=fFy-s7_SbYM&list=PLe30vg_FG4OR3b24WlxeTWsj7Z2wOtYrH&index=15]
+********본 비디오는 laravel5.4를 기준으로 만들었다.  내 source 와는 조금 다르다.***************
+
+php artisan queue:table
+php artisan migrate
+
+php artisan make:job SendReminderEmail
+app\jobs folder가 생기고 SendEmailJob.php 가 생성된다.
+SendEmailJob.php 안의 handle function 에  Mail::to($cartNum)->send(new MailSending($orderDetails)); 을 삽입
+
+필요한 controller 안에 SendReminderEmail function 을 만들고 $this->dispatch(new SendReminderEmail($user)); 을 삽입.
+(laravel documents에 상세히 나와 있음)
+
+delay를 설정한다.(laravel5.2 매뉴얼 참고 할 것)
+
+.env file 의 QUEUE_DRIVER=sync 를 QUEUE_DRIVER=database로 변경
+
+php artisan queue:work 실행 혹은
+php artisan queue:work --tries=4  => 4 번 까지만 실행한다.
+
+php artisan queue:failed-table ==> fof failed job
+php artisan migrate
+
+php artisan queue:failed 으로 failed job 확인
+php artisan queue:forget 1 ==>failed_jobs table의 id 1 번을 failed job 에서 지워라.
+
+//아래 문제는 해결 했음. ==> .env file에서 APP_NAME=Amarket을 설정 13/04/2019
+*****queue를 사용하여 link가 포함된 email을 발송시 도메인 맨앞에 localhost가 추가되는 문제 발생(localhost/amakrt/verfy...)
+*****register 후에 verification email을 발송 후 링크를 클릭하면 localhost 때문에 연결을 하지 못함.(원인 찾는 중...)

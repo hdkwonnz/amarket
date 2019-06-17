@@ -1,0 +1,14 @@
+﻿cafe24에 laravel projects 올리기
+ ubuntu 상태에서
+  cd Code 로 간 다음 composer create-project --prefer-dist laeavel/laravel blog "5.4.*" project 생성(5.4 version 설치)
+  cd blog ==>  tar -czf ../blog.tar.gz ./  tpye 하여 압축 ==> ubuntu 상에서  압축 ==> windows(c/user/kwon/PhpCode)에 자동으로 들어감
+ windows 상태에서
+  FileZilla를 이용하여 cafe24로  upload(www folder로 하지말고 www 상위  folder에 upload)
+  putty를 사용하여 cafe24 로 들어간다
+     tar -xzf blog.tar.gz를 type 하여 압축 해제
+     파일 권한 설정을 한다.
+    chmod -R 777 bootstrap/cache/
+    chmod -R 777 storage/
+    mv www www.bak =>www folder를 back up 한다
+    ln -s ./public ./www => public folder 를  www에 링크하여 www를 향하게 한다
+    ll => type 하여 file 목록에 www -> ./public 있는 확인

@@ -1,0 +1,75 @@
+﻿/*.ui-tabs {
+    width: 500px;
+}
+
+#theTabs ul {
+    font-size: 15px;
+}*/
+
+/*아래 css는 내가 캪쳐한것임(인터넷에서--버티컬 사용을 위해서)*/
+.ui-tabs.ui-tabs-vertical {
+    padding: 0;
+    /*width: 42em;*/
+    width: 1000px;
+}
+
+    .ui-tabs.ui-tabs-vertical .ui-widget-header {
+        border: none;
+    }
+
+    .ui-tabs.ui-tabs-vertical .ui-tabs-nav {
+        float: left;
+        width: 10em;
+        background: #CCC;
+        border-radius: 4px 0 0 4px;
+        border-right: 1px solid gray;
+    }
+
+        .ui-tabs.ui-tabs-vertical .ui-tabs-nav li {
+            clear: left;
+            width: 100%;
+            margin: 0.2em 0;
+            border: 1px solid gray;
+            border-width: 1px 0 1px 1px;
+            border-radius: 4px 0 0 4px;
+            overflow: hidden;
+            /*overflow: auto;*/
+            position: relative;
+            right: -2px;
+            z-index: 2;
+        }
+
+            .ui-tabs.ui-tabs-vertical .ui-tabs-nav li a {
+                display: block;
+                width: 100%;
+                padding: 0.6em 1em;
+            }
+
+                .ui-tabs.ui-tabs-vertical .ui-tabs-nav li a:hover {
+                    cursor: pointer;
+                }
+
+            .ui-tabs.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active {
+                margin-bottom: 0.2em;
+                padding-bottom: 0;
+                border-right: 1px solid white;
+            }
+
+            .ui-tabs.ui-tabs-vertical .ui-tabs-nav li:last-child {
+                margin-bottom: 10px;
+            }
+
+    .ui-tabs.ui-tabs-vertical .ui-tabs-panel {
+        float: left;
+        width: 28em;
+        border-left: 1px solid gray;
+        border-radius: 0;
+        position: relative;
+        left: -1px;
+    }
+    /*탭 내용이 펼쳐질때 색상과 보더를 지울려고 재정의 하였음(*이곳에서 작동을 안함=>jquery-ui에서 변경하면 작동함)*/
+    .ui-widget-content {
+	/*border: 1px solid #dddddd;
+	background: #eeeeee url("images/ui-bg_highlight-soft_100_eeeeee_1x100.png") 50% top repeat-x;*/
+	color: #333333;
+}

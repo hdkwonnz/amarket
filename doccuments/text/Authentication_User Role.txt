@@ -1,0 +1,40 @@
+﻿Authentication/User Role: Access Level Control  22/03/2019
+[https://www.youtube.com/watch?v=gzT-JQKTfGo&index=9&list=PLe30vg_FG4OTO7KbQ6TByyY99AiSw1MDS]
+
+아래 처럼 모델 생성하고 migration file을 수정한다.
+php artisan make:model Role -m
+php artisan make:model Role_admin -m  ==> Role_Admin으로 하지말것(왜냐면 role__admins table이 생김)
+php artisan migrate
+
+Admin.php(model)에서 public function role()을 만들고 코드 추가.(relationship)
+
+아래처럼 확인한다.(현재시점에서 Unable to check for updates가 나옴)
+php artisan tinker
+>>> App\Admin::find(1)
+...
+...
+>>>  App\Admin::find(1) -> Role
+
+Http\Controllers\Admin\LoginController.php의  AuthenticatesUsers에서  protected function sendLoginResponse(Request $request)를
+copy해서 Http\Controllers\Admin\LoginController.php에 옮긴 후 수정한다.
+
+web.php에 필효한 route를 추가한다.
+php artisan make:controller EditorController 한후 코드 추가.
+views/admin folder 안에 editor.blade.php 생성
+EditorController.php에 public function __construct() 추가
+
+php artisan make:middleware EditorMiddleware
+Http\Middleware\EditorMiddleware.php 를 수정
+Http\kernel.php 에 editor 추가
+EditorController.php의 public function __construct()에 editor middlware 추가.
+
+php artisan make:middleware AdminMiddleware
+Http\Middleware\AdminMiddleware.php 를 수정
+Http\kernel.php 에 admin 추가
+AdminController.php의 public function __construct()에 admin middlware 추가.
+
+****************내가 수정한 코드(비디오에 없음)*****************
+User.php(model) 수정
+  register 후에 이메일  보낼시에 queue 사용을 위해서
+  public function sendPasswordResetNotification($token)을 copy하여 User.php(model)에 
+  overwriting한 후 수정한다. 이 코드에서 mail을 보내라는 명령을 내린다.(trigger로 보면 된다)

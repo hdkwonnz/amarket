@@ -1,0 +1,28 @@
+﻿Email Verification Authentication.  13/03/2019
+
+(참조: https://www.youtube.com/watch?v=XdraIx9JaXw&list=PLe30vg_FG4OTO7KbQ6TByyY99AiSw1MDS&index=11)
+
+migraton을 통하여 users table에 verfifyToken(string, default -> null), status column(boolean default -> false)을 추가 할 것.
+User.php(User Model)에서 $fillable에 verifyToken 추가.
+
+RegisterController.php의 create function에 verifyToken 추가(랜덤으로 생성 하는 함수 추가 => DatabaseTokenRepository.php에서 가져옴).
+RegisterController의 RegistersUsers.php에서 function register(Request $request)를 수정.
+RegisterController에 sendEmail function 추가.
+php artisan make:mail VerifyEmail로 Mail folder에 VerifyEmail.php 생성.
+RegisterController에 sendEmail function을 콜하는 코드 추가.
+Mail/VerifyEmail.php를 수정.
+views folder 안에 emails folder를 만들고  controller에서 정한 view file을 코딩한다.
+wep.php에 필요한 route file을 추가한다.
+RegisterController에 필요한 function을 만든다(예; sendEmailDone).
+sendEmailDone.php안에 필요한 코딩을 한다.
+RegisterController에 Session을 추가하고 원하는 url에 session masage를 diplay한다.
+*********************내가 고친 코드********************************************
+register 후에 login page로 돌아가는 코드를 삽입하려 RegistersUsers.php에서 public function register(Request $request)을
+copy 하여 RegisterController.php에 놓고 수정.27/03/2019
+
+
+
+
+
+
+ 

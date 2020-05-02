@@ -13,7 +13,8 @@
         $product = $item->product;
         $modelName = $product->modelName;
         $pictures = $product->pictures->first();
-        $fileName = $pictures->fileName;
+        //$fileName = $pictures->fileName;//수정해야함...20/08/2019
+        $fileName = 'xxx.JPG';//임시로 사용.아래 부분 에러 방지위해...20/08/2019
         ?>
         <tr class="webgrid-row-style">
             <td class="image_width">

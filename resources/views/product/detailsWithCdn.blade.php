@@ -325,7 +325,7 @@ $certifyCode = $product->certifyCode;
                                         <?= $deliveryNotice ?>
                                     </div>
                                     <div class="delivery_notice_block" style="display: inline; font-size: 18px;">
-                                        <a href="javascript:void(0)" return false;">
+                                        <a href="javascript:void(0) return false;">
                                             <i class="glyphicon glyphicon-question-sign"></i>
                                         </a>
                                         <div class="delivery_notice" style="border: 1px solid #0026ff; z-index: 2; position: absolute; background: gray; display: none;">
